@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-950 text-dark-100 antialiased;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-900;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:from-primary-600 hover:to-primary-700 focus:ring-primary-500 shadow-lg shadow-primary-500/25;
+  }
+
+  .btn-secondary {
+    @apply btn bg-dark-800 text-dark-200 hover:bg-dark-700 focus:ring-dark-500 border border-dark-700;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600/20 text-red-400 hover:bg-red-600/30 focus:ring-red-500 border border-red-600/30;
+  }
+
+  .btn-ghost {
+    @apply btn text-dark-400 hover:text-dark-200 hover:bg-dark-800/50;
+  }
+
+  .card {
+    @apply bg-dark-800/50 backdrop-blur-sm border border-dark-700/50 rounded-xl p-5 transition-all duration-200 hover:border-dark-600/50 hover:shadow-xl;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 bg-dark-800/70 border border-dark-700 rounded-lg text-dark-100 placeholder-dark-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200;
+  }
+
+  .tag {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-500/20 text-primary-300 border border-primary-500/30;
+  }
+
+  .tag-input {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-dark-700 text-dark-300 border border-dark-600 cursor-pointer hover:bg-dark-600 transition-colors;
+  }
+
+  .favorite-btn {
+    @apply p-1.5 rounded-lg transition-all duration-200 hover:scale-110;
+  }
+
+  .favorite-active {
+    @apply text-amber-400 hover:text-amber-300;
+  }
+
+  .favorite-inactive {
+    @apply text-dark-500 hover:text-amber-400;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-700 rounded-full hover:bg-dark-600;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+}
+
+.modal-content {
+  @apply bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-lg animate-scale-in;
+}
