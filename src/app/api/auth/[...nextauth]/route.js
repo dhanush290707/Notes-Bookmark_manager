@@ -16,31 +16,36 @@ export const authOptions = {
                     throw new Error('Please enter email and password');
                 }
 
-                await dbConnect();
+                try {
+                    await dbConnect();
 
-                const user = await User.findOne({ email: credentials.email }).select('+password');
+                    const user = await User.findOne({ email: credentials.email }).select('+password');
 
-                if (!user) {
-                    throw new Error('No user found with this email');
+                    if (!user) {
+                        throw new Error('No user found with this email');
+                    }
+
+                    const isPasswordValid = user.comparePassword(credentials.password);
+
+                    if (!isPasswordValid) {
+                        throw new Error('Invalid password');
+                    }
+
+                    return {
+                        id: user._id.toString(),
+                        email: user.email,
+                        name: user.name
+                    };
+                } catch (error) {
+                    console.error('Auth error:', error);
+                    throw new Error(error.message || 'Authentication failed');
                 }
-
-                const isPasswordValid = await user.comparePassword(credentials.password);
-
-                if (!isPasswordValid) {
-                    throw new Error('Invalid password');
-                }
-
-                return {
-                    id: user._id.toString(),
-                    email: user.email,
-                    name: user.name
-                };
             }
         })
     ],
     session: {
         strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
     },
     callbacks: {
         async jwt({ token, user }) {
