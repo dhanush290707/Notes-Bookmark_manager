@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-const bcrypt = require('bcryptjs');
+import crypto from 'crypto';
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -20,17 +20,21 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Password is required'],
         minlength: [6, 'Password must be at least 6 characters'],
         select: false
+    },
+    salt: {
+        type: String,
+        select: false
     }
 }, {
     timestamps: true
 });
 
-// Hash password before saving (using sync methods for compatibility)
+// Hash password before saving using crypto (Node.js built-in)
 UserSchema.pre('save', function (next) {
     if (!this.isModified('password')) return next();
     try {
-        const salt = bcrypt.genSaltSync(10);
-        this.password = bcrypt.hashSync(this.password, salt);
+        this.salt = crypto.randomBytes(16).toString('hex');
+        this.password = crypto.pbkdf2Sync(this.password, this.salt, 10000, 64, 'sha512').toString('hex');
         next();
     } catch (err) {
         next(err);
@@ -39,7 +43,8 @@ UserSchema.pre('save', function (next) {
 
 // Compare password method
 UserSchema.methods.comparePassword = function (candidatePassword) {
-    return bcrypt.compareSync(candidatePassword, this.password);
+    const hash = crypto.pbkdf2Sync(candidatePassword, this.salt, 10000, 64, 'sha512').toString('hex');
+    return this.password === hash;
 };
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

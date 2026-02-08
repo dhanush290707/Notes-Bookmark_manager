@@ -19,7 +19,8 @@ export const authOptions = {
                 try {
                     await dbConnect();
 
-                    const user = await User.findOne({ email: credentials.email }).select('+password');
+                    // Select password AND salt for comparison
+                    const user = await User.findOne({ email: credentials.email }).select('+password +salt');
 
                     if (!user) {
                         throw new Error('No user found with this email');
