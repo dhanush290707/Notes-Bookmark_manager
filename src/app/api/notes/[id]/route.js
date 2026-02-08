@@ -1,13 +1,20 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/mongodb';
 import Note from '@/models/Note';
 
-// GET single note
+// GET single note (only if owned by user)
 export async function GET(request, { params }) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await dbConnect();
 
-        const note = await Note.findById(params.id);
+        const note = await Note.findOne({ _id: params.id, userId: session.user.id });
         if (!note) {
             return NextResponse.json({ error: 'Note not found' }, { status: 404 });
         }
@@ -17,14 +24,19 @@ export async function GET(request, { params }) {
     }
 }
 
-// PUT update note
+// PUT update note (only if owned by user)
 export async function PUT(request, { params }) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await dbConnect();
 
         const body = await request.json();
-        const note = await Note.findByIdAndUpdate(
-            params.id,
+        const note = await Note.findOneAndUpdate(
+            { _id: params.id, userId: session.user.id },
             body,
             { new: true, runValidators: true }
         );
@@ -42,12 +54,17 @@ export async function PUT(request, { params }) {
     }
 }
 
-// DELETE note
+// DELETE note (only if owned by user)
 export async function DELETE(request, { params }) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         await dbConnect();
 
-        const note = await Note.findByIdAndDelete(params.id);
+        const note = await Note.findOneAndDelete({ _id: params.id, userId: session.user.id });
         if (!note) {
             return NextResponse.json({ error: 'Note not found' }, { status: 404 });
         }

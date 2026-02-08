@@ -19,6 +19,12 @@ const NoteSchema = new mongoose.Schema({
     favorite: {
         type: Boolean,
         default: false
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
     }
 }, {
     timestamps: true
