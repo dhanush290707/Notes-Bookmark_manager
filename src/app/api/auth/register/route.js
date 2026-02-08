@@ -3,13 +3,19 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 
 export async function POST(request) {
+    console.log('Registration API called');
+
     try {
+        console.log('Connecting to database...');
         await dbConnect();
+        console.log('Database connected successfully');
 
         let body;
         try {
             body = await request.json();
+            console.log('Request body parsed:', { email: body.email, hasPassword: !!body.password });
         } catch (parseErr) {
+            console.error('Body parse error:', parseErr);
             return NextResponse.json(
                 { error: 'Invalid request body' },
                 { status: 400 }
@@ -34,8 +40,10 @@ export async function POST(request) {
         }
 
         // Check if user exists
+        console.log('Checking for existing user...');
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
+            console.log('User already exists');
             return NextResponse.json(
                 { error: 'User with this email already exists' },
                 { status: 400 }
@@ -43,11 +51,13 @@ export async function POST(request) {
         }
 
         // Create user
+        console.log('Creating new user...');
         const user = await User.create({
             name: name || '',
             email: email.toLowerCase(),
             password
         });
+        console.log('User created successfully:', user._id);
 
         return NextResponse.json(
             {
@@ -57,7 +67,8 @@ export async function POST(request) {
             { status: 201 }
         );
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Registration error:', error.message);
+        console.error('Error stack:', error.stack);
 
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(err => err.message);
@@ -69,7 +80,7 @@ export async function POST(request) {
         }
 
         return NextResponse.json(
-            { error: 'Registration failed. Please try again.' },
+            { error: 'Registration failed: ' + error.message },
             { status: 500 }
         );
     }
